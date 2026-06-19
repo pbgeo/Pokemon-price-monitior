@@ -9,20 +9,20 @@ export async function searchKream(keyword: string): Promise<KreamItem[]> {
   return parseProducts(html);
 }
 
-// ScrapingBee 로 JS 렌더링된 HTML 을 받아온다.
+// ScraperAPI 로 JS 렌더링된 HTML 을 받아온다.
 // Kream 은 공개 API 가 없고 봇 차단 + Nuxt SSR 이라 헤드리스 렌더링이 필요.
+// ScraperAPI 무료 플랜: 매월 5,000 크레딧 갱신 (render=true 는 요청당 크레딧 더 사용).
 async function fetchRenderedHtml(targetUrl: string): Promise<string> {
-  const apiKey = process.env.SCRAPINGBEE_API_KEY;
+  const apiKey = process.env.SCRAPERAPI_API_KEY;
   if (!apiKey) {
-    throw new Error("SCRAPINGBEE_API_KEY 환경변수가 설정되지 않았습니다.");
+    throw new Error("SCRAPERAPI_API_KEY 환경변수가 설정되지 않았습니다.");
   }
 
-  const url = new URL("https://app.scrapingbee.com/api/v1/");
+  const url = new URL("https://api.scraperapi.com/");
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("url", targetUrl);
-  url.searchParams.set("render_js", "true");
-  url.searchParams.set("wait_for", "a.product_card"); // 상품 카드 렌더 대기
-  url.searchParams.set("country_code", "kr");
+  url.searchParams.set("render", "true"); // JS 렌더링
+  url.searchParams.set("country_code", "kr"); // 한국 프록시 (차단 시 이 줄 제거 가능)
 
   const res = await fetch(url.toString());
   if (!res.ok) {

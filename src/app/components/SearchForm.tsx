@@ -1,51 +1,97 @@
 "use client";
 
 import { useState } from "react";
+import { SearchCondition } from "@/lib/types";
 
 interface Props {
-  onSubmit: (keyword: string, targetPriceKrw: number) => void;
+  onSubmit: (conditions: SearchCondition[]) => void;
   loading: boolean;
 }
 
+interface Row {
+  keyword: string;
+  target: string;
+}
+
+const MAX = 3;
+
 export default function SearchForm({ onSubmit, loading }: Props) {
-  const [keyword, setKeyword] = useState("");
-  const [target, setTarget] = useState("");
+  const [rows, setRows] = useState<Row[]>([{ keyword: "", target: "" }]);
+
+  function update(i: number, patch: Partial<Row>) {
+    setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  }
+  function addRow() {
+    setRows((rs) => (rs.length < MAX ? [...rs, { keyword: "", target: "" }] : rs));
+  }
+  function removeRow(i: number) {
+    setRows((rs) => rs.filter((_, idx) => idx !== i));
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const price = parseInt(target.replace(/[^\d]/g, ""), 10);
-    if (!keyword.trim() || !price) return;
-    onSubmit(keyword.trim(), price);
+    const conditions: SearchCondition[] = rows
+      .map((r) => ({
+        keyword: r.keyword.trim(),
+        targetPriceKrw: parseInt(r.target.replace(/[^\d]/g, ""), 10) || 0,
+      }))
+      .filter((c) => c.keyword && c.targetPriceKrw > 0);
+    if (!conditions.length) return;
+    onSubmit(conditions);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex gap-3">
-        <div className="flex-1 min-w-0">
-          <label className="block text-sm font-medium text-gray-700 mb-1">검색어</label>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      {/* 라벨 헤더 (한 번만) */}
+      <div className="flex gap-2">
+        <span className="flex-1 min-w-0 text-sm font-medium text-gray-700">검색어</span>
+        <span className="w-28 sm:w-40 text-sm font-medium text-gray-700">목표가 (원)</span>
+        <span className="w-8 shrink-0" />
+      </div>
+
+      {rows.map((row, i) => (
+        <div key={i} className="flex gap-2 items-center">
           <input
             type="text"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={row.keyword}
+            onChange={(e) => update(i, { keyword: e.target.value })}
             placeholder="예: 리자몽 카드"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-black focus:outline-none"
+            className="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-black focus:outline-none"
           />
-        </div>
-        <div className="w-32 sm:w-44 shrink-0">
-          <label className="block text-sm font-medium text-gray-700 mb-1">목표가 (원)</label>
           <input
             type="text"
             inputMode="numeric"
-            value={target}
+            value={row.target}
             onChange={(e) => {
               const digits = e.target.value.replace(/[^\d]/g, "");
-              setTarget(digits ? parseInt(digits, 10).toLocaleString() : "");
+              update(i, { target: digits ? parseInt(digits, 10).toLocaleString() : "" });
             }}
             placeholder="1,000,000"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-right focus:border-black focus:outline-none"
+            className="w-28 sm:w-40 rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-right focus:border-black focus:outline-none"
           />
+          {rows.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => removeRow(i)}
+              aria-label="삭제"
+              className="flex h-9 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+            >
+              ×
+            </button>
+          ) : (
+            <span className="w-8 shrink-0" />
+          )}
         </div>
-      </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={addRow}
+        disabled={rows.length >= MAX}
+        className="text-sm font-medium text-gray-600 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        + 품목 추가 ({rows.length}/{MAX})
+      </button>
 
       <button
         type="submit"

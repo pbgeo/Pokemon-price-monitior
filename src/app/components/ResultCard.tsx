@@ -22,10 +22,15 @@ export default function ResultCard({ item }: { item: ResultItem }) {
         />
       )}
       <div className="min-w-0 flex-1">
-        {item.brand && (
-          <p className="truncate text-xs font-semibold text-gray-500">{item.brand}</p>
-        )}
-        <p className="line-clamp-2 text-sm font-medium text-gray-900">{item.title}</p>
+        <div className="flex items-center gap-1.5">
+          <span className="shrink-0 rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
+            {item.keyword}
+          </span>
+          {item.brand && (
+            <p className="truncate text-xs font-semibold text-gray-500">{item.brand}</p>
+          )}
+        </div>
+        <p className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-900">{item.title}</p>
         <p className="mt-1 text-base font-bold text-gray-900">{krw(item.priceKrw)}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <span className="rounded-md bg-rose-50 px-2.5 py-1 text-sm font-semibold text-rose-700">

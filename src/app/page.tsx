@@ -125,7 +125,13 @@ export default function Home() {
             ) : (
               <div className="space-y-3">
                 {data.items.map((item) => (
-                  <ResultCard key={item.id} item={item} />
+                  <ResultCard
+                    key={item.id}
+                    item={item}
+                    colorIndex={data.conditions.findIndex(
+                      (c) => c.keyword === item.keyword
+                    )}
+                  />
                 ))}
               </div>
             )}

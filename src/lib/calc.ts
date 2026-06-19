@@ -10,10 +10,15 @@ export function filterUnderTarget(
     .sort((a, b) => a.priceKrw - b.priceKrw);
 }
 
-// 판매가를 VND / CNY 로 환산
-export function toResult(item: KreamItem, fx: FxRates): ResultItem {
+// 판매가를 VND / CNY 로 환산하고 출처 검색어를 태깅
+export function toResult(
+  item: KreamItem,
+  fx: FxRates,
+  keyword: string
+): ResultItem {
   return {
     ...item,
+    keyword,
     priceVnd: Math.round(item.priceKrw * fx.vnd),
     priceCny: Math.round(item.priceKrw * fx.cny * 100) / 100,
   };

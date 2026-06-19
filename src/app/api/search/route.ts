@@ -7,6 +7,19 @@ import { filterUnderTarget, toResult } from "@/lib/calc";
 // 헤드리스 렌더링은 시간이 걸릴 수 있어 타임아웃을 넉넉히
 export const maxDuration = 60;
 
+// 환율만 조회 (검색창 위 환율 배너용, 페이지 진입 시 호출)
+export async function GET() {
+  try {
+    const fx = await getFxRates();
+    return NextResponse.json({ fx });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "환율 조회 실패" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: SearchRequest;
   try {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import SearchForm from "./components/SearchForm";
 import ResultCard from "./components/ResultCard";
-import { FxRates, SearchResponse } from "@/lib/types";
+import { FxRates, SearchCondition, SearchResponse } from "@/lib/types";
 
 export default function Home() {
   const [data, setData] = useState<SearchResponse | null>(null);
@@ -21,7 +21,7 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  async function handleSearch(keyword: string, targetPriceKrw: number) {
+  async function handleSearch(conditions: SearchCondition[]) {
     setLoading(true);
     setError(null);
     setData(null);
@@ -29,7 +29,7 @@ export default function Home() {
       const res = await fetch("/api/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword, targetPriceKrw }),
+        body: JSON.stringify({ conditions }),
       });
       const json = (await res.json()) as SearchResponse;
       if (json.error) {
@@ -53,7 +53,8 @@ export default function Home() {
             Kream 가격 차액 검색기
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            목표가 이하의 Kream 상품을 베트남 동·중국 위안 가격과 함께 보여줍니다.
+            여러 품목(최대 3개)을 한 번에 검색해, 목표가 이하 상품을
+            베트남 동·중국 위안 가격과 함께 가격순으로 보여줍니다.
           </p>
         </div>
 
@@ -85,18 +86,36 @@ export default function Home() {
 
         {loading && (
           <div className="animate-pulse py-10 text-center text-sm text-gray-400">
-            Kream 검색 중… (헤드리스 렌더링으로 10~20초 걸릴 수 있어요)
+            Kream 검색 중… (품목 수에 따라 10~20초 걸릴 수 있어요)
           </div>
         )}
 
         {data && (
           <div className="space-y-3">
+            {/* 조건별 요약 */}
+            <div className="flex flex-wrap gap-2">
+              {data.conditions.map((c, i) => (
+                <span
+                  key={i}
+                  className={
+                    "rounded-full px-3 py-1 text-xs font-medium " +
+                    (c.error
+                      ? "bg-red-50 text-red-600"
+                      : "bg-gray-100 text-gray-700")
+                  }
+                >
+                  {c.keyword}{" "}
+                  {c.error
+                    ? "· 검색 실패"
+                    : `· ${c.matched}건 (전체 ${c.totalFound})`}
+                </span>
+              ))}
+            </div>
+
             <p className="text-sm text-gray-600">
-              전체 <span className="font-semibold text-gray-900">{data.totalFound}건</span> 중 목표가{" "}
-              <span className="font-semibold text-gray-900">
-                {data.targetPriceKrw.toLocaleString()}원
-              </span>{" "}
-              이하 <span className="font-semibold text-gray-900">{data.items.length}건</span>
+              목표가 이하 총{" "}
+              <span className="font-semibold text-gray-900">{data.items.length}건</span>{" "}
+              · 가격순
             </p>
 
             {data.items.length === 0 ? (

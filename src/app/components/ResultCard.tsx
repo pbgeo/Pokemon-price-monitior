@@ -27,9 +27,13 @@ export default function ResultCard({ item }: { item: ResultItem }) {
         )}
         <p className="line-clamp-2 text-sm font-medium text-gray-900">{item.title}</p>
         <p className="mt-1 text-base font-bold text-gray-900">{krw(item.priceKrw)}</p>
-        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-600">
-          <span>{vnd(item.priceVnd)}</span>
-          <span>{cny(item.priceCny)}</span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <span className="rounded-md bg-rose-50 px-2.5 py-1 text-sm font-semibold text-rose-700">
+            {vnd(item.priceVnd)}
+          </span>
+          <span className="rounded-md bg-sky-50 px-2.5 py-1 text-sm font-semibold text-sky-700">
+            {cny(item.priceCny)}
+          </span>
         </div>
       </div>
     </a>

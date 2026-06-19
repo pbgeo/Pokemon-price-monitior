@@ -88,7 +88,7 @@ export default function SearchForm({ onSubmit, loading }: Props) {
         type="button"
         onClick={addRow}
         disabled={rows.length >= MAX}
-        className="text-sm font-medium text-gray-600 hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+        className="w-full rounded-lg border border-dashed border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:border-gray-400 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
       >
         + 품목 추가 ({rows.length}/{MAX})
       </button>

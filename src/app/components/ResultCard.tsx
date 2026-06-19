@@ -5,7 +5,21 @@ const vnd = (n: number) => "₫ " + n.toLocaleString("vi-VN");
 const cny = (n: number) =>
   "¥ " + n.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
 
-export default function ResultCard({ item }: { item: ResultItem }) {
+// 검색 순서별 뱃지 색: 1번 파랑 · 2번 빨강 · 3번 노랑
+const BADGE = [
+  "bg-blue-600 text-white",
+  "bg-red-600 text-white",
+  "bg-yellow-400 text-black",
+];
+
+export default function ResultCard({
+  item,
+  colorIndex = 0,
+}: {
+  item: ResultItem;
+  colorIndex?: number;
+}) {
+  const badge = BADGE[colorIndex] ?? "bg-gray-900 text-white";
   return (
     <a
       href={item.link}
@@ -23,7 +37,11 @@ export default function ResultCard({ item }: { item: ResultItem }) {
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="shrink-0 rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-medium text-white">
+          <span
+            className={
+              "shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium " + badge
+            }
+          >
             {item.keyword}
           </span>
           {item.brand && (
